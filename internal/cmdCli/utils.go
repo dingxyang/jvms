@@ -135,7 +135,7 @@ func extractMajorVersion(version string) string {
 //
 // 返回值:
 //
-//	[]entity.TJDKVersion - JDK版本列表（按版本号从大到小排序，只显示主版本号）
+//	[]entity.TJDKVersion - JDK版本列表（按版本号从大到小排序，每个主版本号只显示最新的完整版本）
 //	error - 错误信息
 func getJdkVersions(cfx *entity.TConfig) ([]entity.TJDKVersion, error) {
 	var versions []entity.TJDKVersion
@@ -145,24 +145,24 @@ func getJdkVersions(cfx *entity.TConfig) ([]entity.TJDKVersion, error) {
 	// 华为镜像 JDKs
 	huaweiJdks := jdk.HuaweiJDKs()
 
-	// 使用 map 来去重，只保留每个主版本号的第一个（最新）版本
+	// 使用 map 来去重，只保留每个主版本号的最新完整版本
 	majorVersionMap := make(map[string]entity.TJDKVersion)
 
 	for _, huaweiJdk := range huaweiJdks {
 		versionName := fmt.Sprintf("openjdk-%s", huaweiJdk.Version)
 		majorVersion := extractMajorVersion(versionName)
 
-		// 如果该主版本号还没有记录，或者当前版本更新，则保存
+		// 如果该主版本号还没有记录，或者当前版本更新，则保存完整版本号
 		if existing, exists := majorVersionMap[majorVersion]; !exists {
 			majorVersionMap[majorVersion] = entity.TJDKVersion{
-				Version: fmt.Sprintf("openjdk-%s", majorVersion),
+				Version: versionName, // 保留完整版本号，例如 "openjdk-12.0.2"
 				Url:     huaweiJdk.URL,
 			}
 		} else {
-			// 比较版本，保留更新的版本
+			// 比较版本，保留更新的版本（完整版本号）
 			if compareVersions(versionName, existing.Version) > 0 {
 				majorVersionMap[majorVersion] = entity.TJDKVersion{
-					Version: fmt.Sprintf("openjdk-%s", majorVersion),
+					Version: versionName, // 保留完整版本号
 					Url:     huaweiJdk.URL,
 				}
 			}
