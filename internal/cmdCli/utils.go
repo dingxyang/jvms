@@ -18,9 +18,12 @@ import (
 
 // getJavaHome 从临时JDK文件目录中获取JAVA_HOME路径
 // 参数:
-//   jdkTempFile - JDK临时解压目录路径
+//
+//	jdkTempFile - JDK临时解压目录路径
+//
 // 返回值:
-//   string - JAVA_HOME路径(包含javac.exe的父目录)
+//
+//	string - JAVA_HOME路径(包含javac.exe的父目录)
 func getJavaHome(jdkTempFile string) string {
 	var javaHome string
 	fs.WalkDir(os.DirFS(jdkTempFile), ".", func(path string, d fs.DirEntry, err error) error {
@@ -36,21 +39,24 @@ func getJavaHome(jdkTempFile string) string {
 
 // getJdkVersions 获取可供下载的JDK版本列表
 // 参数:
-//   cfx - 配置对象指针
+//
+//	cfx - 配置对象指针
+//
 // 返回值:
-//   []entity.TJdkVersion - JDK版本列表
-//   error - 错误信息
-func getJdkVersions(cfx *entity.TConfig) ([]entity.TJdkVersion, error) {
-	var versions []entity.TJdkVersion
+//
+//	[]entity.TJDKVersion - JDK版本列表
+//	error - 错误信息
+func getJdkVersions(cfx *entity.TConfig) ([]entity.TJDKVersion, error) {
+	var versions []entity.TJDKVersion
 
-	fmt.Println("")
-	fmt.Println("-= Huawei OpenJDK Mirror =-")
+	//fmt.Println("")
+	//fmt.Println("-= Huawei OpenJDK Mirror =-")
 	// 华为镜像 JDKs
 	huaweiJdks := jdk.HuaweiJDKs()
 	for _, huaweiJdk := range huaweiJdks {
 		versionName := fmt.Sprintf("openjdk-%s", huaweiJdk.Version)
-		fmt.Printf("%s [%s/%s] %s\n", versionName, huaweiJdk.GOOS, huaweiJdk.GOARCH, huaweiJdk.URL)
-		versions = append(versions, entity.TJdkVersion{Version: versionName, Url: huaweiJdk.URL})
+		//fmt.Printf("%s [%s/%s] %s\n", versionName, huaweiJdk.GOOS, huaweiJdk.GOARCH, huaweiJdk.URL)
+		versions = append(versions, entity.TJDKVersion{Version: versionName, Url: huaweiJdk.URL})
 	}
 
 	return versions, nil
