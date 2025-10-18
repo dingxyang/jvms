@@ -111,6 +111,81 @@ func compareVersions(v1, v2 string) int {
 	return 0
 }
 
+// getCacheFilePath 获取缓存文件路径
+// 返回值:
+//
+//	string - 缓存文件的完整路径
+func getCacheFilePath() string {
+	currentPath := file.GetCurrentPath()
+	return filepath.Join(currentPath, "jdkdlindex.json")
+}
+
+// isCacheValid 检查缓存文件是否有效（是否是当月创建的）
+// 参数:
+//
+//	cacheFile - 缓存文件路径
+//
+// 返回值:
+//
+//	bool - 如果缓存文件存在且是当月创建的返回 true，否则返回 false
+func isCacheValid(cacheFile string) bool {
+	// 检查文件是否存在
+	fileInfo, err := os.Stat(cacheFile)
+	if err != nil {
+		return false
+	}
+
+	// 获取文件修改时间
+	modTime := fileInfo.ModTime()
+
+	// 获取当前时间
+	now := time.Now()
+
+	// 检查是否在同一年和同一月
+	return modTime.Year() == now.Year() && modTime.Month() == now.Month()
+}
+
+// loadCachedVersions 从缓存文件加载版本列表
+// 参数:
+//
+//	cacheFile - 缓存文件路径
+//
+// 返回值:
+//
+//	[]entity.TJDKVersion - JDK 版本列表
+//	error - 错误信息
+func loadCachedVersions(cacheFile string) ([]entity.TJDKVersion, error) {
+	data, err := os.ReadFile(cacheFile)
+	if err != nil {
+		return nil, err
+	}
+
+	var versions []entity.TJDKVersion
+	if err := json.Unmarshal(data, &versions); err != nil {
+		return nil, err
+	}
+
+	return versions, nil
+}
+
+// saveCachedVersions 保存版本列表到缓存文件
+// 参数:
+//
+//	cacheFile - 缓存文件路径
+//	versions - JDK 版本列表
+//
+// 返回值:
+//
+//	error - 错误信息
+func saveCachedVersions(cacheFile string, versions []entity.TJDKVersion) error {
+	data, err := json.MarshalIndent(versions, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile(cacheFile, data, 0644)
+}
+
 // extractMajorVersion 提取主版本号
 // 参数:
 //
@@ -141,10 +216,24 @@ func extractMajorVersion(version string) string {
 //	[]entity.TJDKVersion - JDK版本列表（按版本号从大到小排序，每个主版本号只显示最新的完整版本）
 //	error - 错误信息
 func getJdkVersions(cfx *entity.TConfig) ([]entity.TJDKVersion, error) {
+	// 获取缓存文件路径
+	cacheFile := getCacheFilePath()
+
+	// 检查缓存是否有效
+	if isCacheValid(cacheFile) {
+		// 尝试从缓存加载
+		versions, err := loadCachedVersions(cacheFile)
+		if err == nil {
+			fmt.Println("从本地缓存加载版本列表...")
+			return versions, nil
+		}
+		// 如果加载失败，继续从网络获取
+		fmt.Println("缓存文件加载失败，从网络获取...")
+	}
+
 	var versions []entity.TJDKVersion
 
-	//fmt.Println("")
-	//fmt.Println("-= Huawei OpenJDK Mirror =-")
+	fmt.Println("从华为云镜像获取版本列表...")
 	// 华为镜像 JDKs
 	huaweiJdks := jdk.HuaweiJDKs()
 
@@ -181,6 +270,14 @@ func getJdkVersions(cfx *entity.TConfig) ([]entity.TJDKVersion, error) {
 	sort.Slice(versions, func(i, j int) bool {
 		return compareVersions(versions[i].Version, versions[j].Version) > 0
 	})
+
+	// 保存到缓存
+	if err := saveCachedVersions(cacheFile, versions); err != nil {
+		fmt.Printf("警告: 保存缓存失败: %v\n", err)
+		// 不返回错误，因为主要功能已经完成
+	} else {
+		fmt.Println("版本列表已缓存到本地")
+	}
 
 	return versions, nil
 }

@@ -16,7 +16,8 @@
       "Bash(./jvms.exe --help)",
       "Bash(./jvms.exe help install)",
       "Bash(./jvms.exe list)",
-      "Bash(./jvms.exe ls)"
+      "Bash(./jvms.exe ls)",
+      "Bash(dir jdkdlindex.json)"
     ],
     "deny": [],
     "ask": []

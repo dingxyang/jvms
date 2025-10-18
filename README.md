@@ -12,8 +12,8 @@
 - ✅ **多版本管理** - 在一台机器上安装和管理多个 JDK 版本
 - 🔄 **快速切换** - 无需重启，即时切换 JDK 版本
 - 📦 **多源支持** - 支持从多个镜像源下载 JDK
-  - Adoptium (Eclipse Temurin)
-  - Azul Zulu
+  - Adoptium (Eclipse Temurin) (移除，国内速度太慢)
+  - Azul Zulu (移除，国内速度太慢)
   - 华为云 OpenJDK 镜像（新增）
 - 🎯 **智能匹配** - 自动识别系统架构，下载适配版本
 - 🚀 **零依赖** - 使用 Go 编写，无需预装 JDK
