@@ -3,40 +3,37 @@ package cmdCli
 import (
 	"fmt"
 
-	"github.com/codegangsta/cli"
+	"github.com/spf13/pflag"
 	"github.com/tea4go/jvms/internal/entity"
 )
 
-// proxy 创建代理设置命令
+// proxyCmd 执行代理设置命令
 // 设置或显示用于下载的代理服务器
 // 参数:
+//   args - 命令参数
 //   cfx - 配置对象指针
 // 返回值:
-//   *cli.Command - CLI命令对象指针
-func proxy(cfx *entity.TConfig) *cli.Command {
-	cmd := &cli.Command{
-		Name:  "proxy",
-		Usage: "设置下载使用的代理",
-		Flags: []cli.Flag{
-			cli.BoolFlag{
-				Name:  "show",
-				Usage: "显示代理",
-			},
-			cli.StringFlag{
-				Name:  "set",
-				Usage: "设置代理",
-			},
-		},
-		Action: func(c *cli.Context) error {
-			if c.Bool("show") {
-				fmt.Printf("当前代理: %s\n", cfx.Proxy)
-				return nil
-			}
-			if c.IsSet("set") {
-				cfx.Proxy = c.String("set")
-			}
-			return nil
-		},
+//   error - 执行错误
+func proxyCmd(args []string, cfx *entity.TConfig) error {
+	// 创建命令专用的 FlagSet
+	fs := pflag.NewFlagSet("proxy", pflag.ContinueOnError)
+
+	show := fs.Bool("show", false, "显示代理")
+	set := fs.String("set", "", "设置代理")
+
+	if err := fs.Parse(args); err != nil {
+		return err
 	}
-	return cmd
+
+	if *show {
+		fmt.Printf("当前代理: %s\n", cfx.Proxy)
+		return nil
+	}
+
+	if fs.Changed("set") {
+		cfx.Proxy = *set
+		fmt.Printf("代理已设置为: %s\n", cfx.Proxy)
+	}
+
+	return nil
 }

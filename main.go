@@ -5,11 +5,11 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
-	"os"
 	"path/filepath"
 
-	"github.com/codegangsta/cli"
+	"github.com/spf13/pflag"
 	"github.com/tea4go/jvms/internal/cmdCli"
 	"github.com/tea4go/jvms/internal/entity"
 	"github.com/tea4go/jvms/utils/file"
@@ -32,39 +32,69 @@ var cfx entity.TConfig
 // main 是程序的入口函数
 // 初始化 CLI 应用并执行用户命令
 func main() {
-	app := cli.NewApp()
-	app.Name = "jvms"
-	app.Usage = `JDK Version Manager (JVMS) for Windows`
-	app.Version = version
-	app.CommandNotFound = commandNotFound
-	app.Commands = commands()
-
-	// 设置启动前和关闭后的钩子函数
-	app.Before = startup
-	app.After = shutdown
-
-	if err := app.Run(os.Args); err != nil {
+	// 初始化配置
+	if err := startup(); err != nil {
 		log.Fatal(err.Error())
-		os.Exit(1)
+	}
+	defer shutdown()
+
+	// 定义全局标志
+	showVersion := pflag.BoolP("version", "v", false, "显示版本信息")
+	showHelp := pflag.BoolP("help", "h", false, "显示帮助信息")
+
+	pflag.Parse()
+
+	// 处理全局标志
+	if *showVersion {
+		fmt.Printf("jvms version %s\n", version)
+		return
+	}
+
+	if *showHelp || pflag.NArg() == 0 {
+		printUsage()
+		return
+	}
+
+	// 获取命令
+	command := pflag.Arg(0)
+	args := pflag.Args()[1:]
+
+	// 创建命令参数
+	cmdParams := &cmdCli.TCommandParams{
+		DefaultOriginalPath: defaultOriginalpath,
+		Config:              &cfx,
+	}
+
+	// 执行命令
+	if err := cmdCli.Execute(command, args, cmdParams); err != nil {
+		log.Fatal(err.Error())
 	}
 }
 
-// commands 返回所有可用的 CLI 命令列表
-// 包括 init, list, install, switch, use, remove, rls, proxy 等命令
-func commands() []cli.Command {
-	cmds := cmdCli.Commands(&cmdCli.TCommandParams{
-		DefaultOriginalPath: defaultOriginalpath,
-		Config:              &cfx,
-	})
-	return cmds
-}
-
-// commandNotFound 处理用户输入了不存在的命令的情况
-// 参数:
-//   c - CLI 上下文
-//   command - 用户输入的命令名称
-func commandNotFound(c *cli.Context, command string) {
-	log.Fatal("Command Not Found")
+// printUsage 打印使用说明
+func printUsage() {
+	fmt.Println("NAME:")
+	fmt.Println("   jvms - JDK Version Manager (JVMS) for Windows")
+	fmt.Println("")
+	fmt.Println("USAGE:")
+	fmt.Println("   jvms [全局选项] 命令 [命令选项] [参数...]")
+	fmt.Println("")
+	fmt.Printf("VERSION:\n   %s\n", version)
+	fmt.Println("")
+	fmt.Println("COMMANDS:")
+	fmt.Println("   init        初始化配置文件")
+	fmt.Println("   list, ls    列出当前已安装的JDK")
+	fmt.Println("   install, i  安装可用的远程JDK")
+	fmt.Println("   switch, s   切换使用指定的版本或索引号")
+	fmt.Println("   use, u      切换使用指定的版本或索引号")
+	fmt.Println("   remove, rm  删除指定的版本")
+	fmt.Println("   rls         显示可供下载的版本列表")
+	fmt.Println("   proxy       设置下载使用的代理")
+	fmt.Println("   help, h     显示命令列表或命令帮助")
+	fmt.Println("")
+	fmt.Println("全局选项:")
+	fmt.Println("   --help, -h     显示帮助")
+	fmt.Println("   --version, -v  显示版本")
 }
 
 // startup 在应用启动前执行
@@ -73,11 +103,9 @@ func commandNotFound(c *cli.Context, command string) {
 //   2. 加载配置文件 (jvms.json)
 //   3. 初始化存储路径和下载路径
 //   4. 设置代理（如果配置了）
-// 参数:
-//   c - CLI 上下文
 // 返回:
 //   error - 初始化失败时返回错误
-func startup(c *cli.Context) error {
+func startup() error {
 	// 注册 JSON 格式的配置存储器
 	store.Register(
 		"json",
@@ -118,13 +146,8 @@ func startup(c *cli.Context) error {
 
 // shutdown 在应用关闭后执行
 // 主要功能：保存配置到 jvms.json 文件
-// 参数:
-//   c - CLI 上下文
-// 返回:
-//   error - 保存配置失败时返回错误
-func shutdown(c *cli.Context) error {
+func shutdown() {
 	if err := store.Save("jvms.json", &cfx); err != nil {
-		return errors.New("failed to save the config:" + err.Error())
+		log.Printf("警告: 保存配置失败: %s\n", err.Error())
 	}
-	return nil
 }

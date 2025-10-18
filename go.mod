@@ -3,7 +3,7 @@ module github.com/tea4go/jvms
 go 1.24.0
 
 require (
-	github.com/codegangsta/cli v1.19.1
+	github.com/spf13/pflag v1.0.5
 	github.com/tea4go/gh v1.2.9
 	github.com/tucnak/store v0.0.0-20160707125858-84b795be94a4
 	golang.org/x/net v0.46.0

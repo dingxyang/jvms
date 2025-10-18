@@ -12,7 +12,11 @@
       "Bash(./jvms.exe --version)",
       "Bash(./jvms.exe help)",
       "Bash(go run golang.org/x/tools/cmd/deadcode@latest -test .)",
-      "Bash(awk '{print $5, $9}')"
+      "Bash(awk '{print $5, $9}')",
+      "Bash(./jvms.exe --help)",
+      "Bash(./jvms.exe help install)",
+      "Bash(./jvms.exe list)",
+      "Bash(./jvms.exe ls)"
     ],
     "deny": [],
     "ask": []
