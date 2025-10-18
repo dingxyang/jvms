@@ -214,23 +214,23 @@ jvms proxy http://proxy.example.com:8080
 
 **2. 部署到 HTTP 服务器**
 
-将 `index.json` 和 JDK zip 文件部署到 Nginx、Apache 或任何静态文件服务器。
+将 `jdkdlindex.json` 和 JDK zip 文件部署到 Nginx、Apache 或任何静态文件服务器。
 
 **3. 配置 JVMS**
 
 ```cmd
-jvms init --originalpath http://192.168.1.100/jdk/index.json
+jvms init
 ```
 
 可选：自定义 JAVA_HOME 路径
 ```cmd
-jvms init --originalpath http://192.168.1.100/jdk/index.json --java_home D:\MyJDK
+jvms init --java_home D:\MyJDK
 ```
 
 **4. 使用私有源**
 
 ```cmd
-jvms rls           # 列出私有源中的 JDK 版本
+jvms rls                      # 列出私有源中的 JDK 版本
 jvms install 17.0.10-custom   # 安装私有源中的版本
 ```
 

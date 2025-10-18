@@ -20,12 +20,6 @@ import (
 // version 定义当前 JVMS 的版本号
 var version = "3.0.5"
 
-const (
-	// defaultOriginalpath 定义默认的 JDK 下载索引文件 URL
-	// 注意：此 URL 已不再使用，实际使用华为云镜像
-	defaultOriginalpath = "https://raw.githubusercontent.com/ystyle/jvms/new/jdkdlindex.json"
-)
-
 // cfx 全局配置对象，存储 JVMS 的运行配置
 var cfx entity.TConfig
 
@@ -65,8 +59,7 @@ func main() {
 
 	// 创建命令参数
 	cmdParams := &cmdCli.TCommandParams{
-		DefaultOriginalPath: defaultOriginalpath,
-		Config:              &cfx,
+		Config: &cfx,
 	}
 
 	// 执行命令
@@ -136,11 +129,6 @@ func startup() error {
 
 	// 设置下载临时目录路径
 	cfx.Download = filepath.Join(s, "download")
-
-	// 如果未配置原始路径，使用默认值
-	if cfx.Originalpath == "" {
-		cfx.Originalpath = defaultOriginalpath
-	}
 
 	// 如果配置了代理，设置 HTTP 代理
 	if cfx.Proxy != "" {

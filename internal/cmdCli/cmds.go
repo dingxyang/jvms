@@ -9,21 +9,23 @@ import (
 // TCommandParams 命令参数结构体
 // 包含默认原始路径和配置对象
 type TCommandParams struct {
-	DefaultOriginalPath string          // 默认原始路径
-	Config              *entity.TConfig // 配置对象指针
+	Config *entity.TConfig // 配置对象指针
 }
 
 // Execute 执行指定的命令
 // 参数:
-//   command - 命令名称
-//   args - 命令参数
-//   cp - 命令参数对象指针
+//
+//	command - 命令名称
+//	args - 命令参数
+//	cp - 命令参数对象指针
+//
 // 返回值:
-//   error - 执行错误
+//
+//	error - 执行错误
 func Execute(command string, args []string, cp *TCommandParams) error {
 	switch command {
 	case "init":
-		return initCmd(args, cp.DefaultOriginalPath, cp.Config)
+		return initCmd(args, cp.Config)
 	case "list", "ls":
 		return listCmd(args, cp.Config)
 	case "install", "i":
@@ -74,7 +76,6 @@ func printHelp(args []string) error {
 		fmt.Println("")
 		fmt.Println("选项:")
 		fmt.Println("  --java_home <路径>      指定 JAVA_HOME 位置")
-		fmt.Println("  --originalpath <URL>    指定 JDK 下载索引文件 URL")
 	case "install", "i":
 		fmt.Println("install - 安装可用的远程JDK")
 		fmt.Println("")

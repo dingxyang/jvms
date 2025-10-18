@@ -6,8 +6,6 @@ type TConfig struct {
 	JavaHome string `json:"java_home"`
 	// CurrentJDKVersion 当前使用的JDK版本
 	CurrentJDKVersion string `json:"current_jdk_version"`
-	// Originalpath 原始的PATH环境变量值
-	Originalpath string `json:"original_path"`
 	// Proxy 代理服务器地址
 	Proxy string `json:"proxy"`
 	// Store JDK存储路径

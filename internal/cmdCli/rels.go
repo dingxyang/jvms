@@ -49,6 +49,5 @@ func rlsCmd(args []string, cfx *entity.TConfig) error {
 		fmt.Println("没有可供下载的 jdk 版本。")
 	}
 
-	fmt.Printf("\n完整列表请访问 %s\n", cfx.Originalpath)
 	return nil
 }
