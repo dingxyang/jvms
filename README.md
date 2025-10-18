@@ -14,7 +14,7 @@
 - 📦 **多源支持** - 支持从多个镜像源下载 JDK
   - Adoptium (Eclipse Temurin) (移除，国内速度太慢)
   - Azul Zulu (移除，国内速度太慢)
-  - 华为云 OpenJDK 镜像（新增）
+  - 华为云 OpenJDK 镜像（新增，下载速度从50+KB，提升到了6+MB，在同一条宽带，速度提升100倍）
 - 🎯 **智能匹配** - 自动识别系统架构，下载适配版本
 - 🚀 **零依赖** - 使用 Go 编写，无需预装 JDK
 - 🔗 **符号链接** - 使用符号链接技术，切换后所有终端立即生效
@@ -47,7 +47,7 @@ JVMS 让这一切变得简单！
 
 3. **初始化 JVMS**
    ```cmd
-   # 以管理员身份运行 CMD 或 PowerShell
+   # 以管理员身份运行
    cd C:\jvms
    jvms.exe init
    ```
@@ -56,7 +56,7 @@ JVMS 让这一切变得简单！
 
    初始化完成后，JVMS 会自动配置环境变量。重新打开终端即可使用。
 
-![安装示例](images/powershell_2017-07-23_00-38-13.png)
+![安装示例](images/下载jdk.jpg)
 
 ## 使用指南
 
@@ -102,14 +102,6 @@ jvms rls -a
 
 输出示例：
 ```
--= adoptium =-
-jdk-21.0.4+7
-jdk-20.0.0+36
-jdk-17.0.6+10
-
--= Azul JDKs =-
-zulu21.38.21-ca-jdk21.0.5 https://cdn.azul.com/zulu/bin/...
-
 -= Huawei OpenJDK Mirror =-
 openjdk-24 [windows/amd64] https://mirrors.huaweicloud.com/openjdk/24/...
 openjdk-21 [windows/amd64] https://mirrors.huaweicloud.com/openjdk/21/...
@@ -120,11 +112,18 @@ openjdk-17 [windows/amd64] https://mirrors.huaweicloud.com/openjdk/17/...
 
 ```cmd
 # 以管理员身份运行
-jvms install 17.0.6
+$ jvms install 17.0.6
 
 # 或安装指定的版本
-jvms install openjdk-21
+$ jvms install openjdk-21
+从本地缓存加载版本列表...
+正在下载 JDK 版本 openjdk-21.0.2...
+ 201.33 MB / 201.33 MB [=================================] 100.00% 6.19 MB/s 32s
+完成
+正在安装 JDK openjdk-21.0.2 ...
+安装成功完成。如果您想使用此版本，请使用: jvms switch openjdk-21.0.2
 ```
+> 下载速度从50+KB，提升到了6+MB（在同一条宽带，速度提升100倍）
 
 #### 3. 查看已安装的版本
 
@@ -150,7 +149,7 @@ jvms use 21.0.4
 java -version
 ```
 
-![使用示例](images/powershell_2017-07-23_01-26-40.png)
+![使用示例](images/安装jdk.jpg)
 
 ### 高级功能
 
