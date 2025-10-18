@@ -18,7 +18,7 @@ import (
 )
 
 // version 定义当前 JVMS 的版本号
-var version = "2.1.0"
+var version = "3.0.5"
 
 const (
 	// defaultOriginalpath 定义默认的 JDK 下载索引文件 URL
@@ -103,12 +103,14 @@ func printUsage() {
 
 // startup 在应用启动前执行
 // 主要功能：
-//   1. 注册 JSON 序列化/反序列化器
-//   2. 加载配置文件 (jvms.json)
-//   3. 初始化存储路径和下载路径
-//   4. 设置代理（如果配置了）
+//  1. 注册 JSON 序列化/反序列化器
+//  2. 加载配置文件 (jvms.json)
+//  3. 初始化存储路径和下载路径
+//  4. 设置代理（如果配置了）
+//
 // 返回:
-//   error - 初始化失败时返回错误
+//
+//	error - 初始化失败时返回错误
 func startup() error {
 	// 注册 JSON 格式的配置存储器
 	store.Register(
