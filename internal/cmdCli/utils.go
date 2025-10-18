@@ -108,6 +108,26 @@ func compareVersions(v1, v2 string) int {
 	return 0
 }
 
+// extractMajorVersion 提取主版本号
+// 参数:
+//
+//	version - 完整版本号字符串，例如 "openjdk-12.0.1"
+//
+// 返回值:
+//
+//	string - 主版本号，例如 "12"
+func extractMajorVersion(version string) string {
+	// 移除 "openjdk-" 前缀
+	version = strings.TrimPrefix(version, "openjdk-")
+
+	// 按点分割，取第一段
+	parts := strings.Split(version, ".")
+	if len(parts) > 0 {
+		return parts[0]
+	}
+	return version
+}
+
 // getJdkVersions 获取可供下载的JDK版本列表
 // 参数:
 //
@@ -115,7 +135,7 @@ func compareVersions(v1, v2 string) int {
 //
 // 返回值:
 //
-//	[]entity.TJDKVersion - JDK版本列表（按版本号从大到小排序）
+//	[]entity.TJDKVersion - JDK版本列表（按版本号从大到小排序，只显示主版本号）
 //	error - 错误信息
 func getJdkVersions(cfx *entity.TConfig) ([]entity.TJDKVersion, error) {
 	var versions []entity.TJDKVersion
@@ -124,10 +144,34 @@ func getJdkVersions(cfx *entity.TConfig) ([]entity.TJDKVersion, error) {
 	//fmt.Println("-= Huawei OpenJDK Mirror =-")
 	// 华为镜像 JDKs
 	huaweiJdks := jdk.HuaweiJDKs()
+
+	// 使用 map 来去重，只保留每个主版本号的第一个（最新）版本
+	majorVersionMap := make(map[string]entity.TJDKVersion)
+
 	for _, huaweiJdk := range huaweiJdks {
 		versionName := fmt.Sprintf("openjdk-%s", huaweiJdk.Version)
-		//fmt.Printf("%s [%s/%s] %s\n", versionName, huaweiJdk.GOOS, huaweiJdk.GOARCH, huaweiJdk.URL)
-		versions = append(versions, entity.TJDKVersion{Version: versionName, Url: huaweiJdk.URL})
+		majorVersion := extractMajorVersion(versionName)
+
+		// 如果该主版本号还没有记录，或者当前版本更新，则保存
+		if existing, exists := majorVersionMap[majorVersion]; !exists {
+			majorVersionMap[majorVersion] = entity.TJDKVersion{
+				Version: fmt.Sprintf("openjdk-%s", majorVersion),
+				Url:     huaweiJdk.URL,
+			}
+		} else {
+			// 比较版本，保留更新的版本
+			if compareVersions(versionName, existing.Version) > 0 {
+				majorVersionMap[majorVersion] = entity.TJDKVersion{
+					Version: fmt.Sprintf("openjdk-%s", majorVersion),
+					Url:     huaweiJdk.URL,
+				}
+			}
+		}
+	}
+
+	// 将 map 转换为切片
+	for _, v := range majorVersionMap {
+		versions = append(versions, v)
 	}
 
 	// 对版本进行排序（从大到小）
