@@ -2,7 +2,7 @@
 
 ## 概述
 
-`parse_jdk_html.go` 是一个自动化工具，用于从华为云镜像站点（或其他OpenJDK镜像站）抓取所有JDK版本及其下载文件的完整信息，并输出为结构化的JSON文件。
+`huawei.go` 是一个自动化工具，用于从华为云镜像站点（或其他OpenJDK镜像站）抓取所有JDK版本及其下载文件的完整信息，并输出为结构化的JSON文件。
 
 ## 功能特性
 
@@ -26,26 +26,26 @@
 
 ```bash
 # 使用默认配置（华为云镜像）
-go run parse_jdk_html.go
+go run huawei.go
 
 # 自定义URL
-go run parse_jdk_html.go https://example.com/openjdk/
+go run huawei.go https://example.com/openjdk/
 
 # 自定义URL和输出文件
-go run parse_jdk_html.go https://mirrors.huaweicloud.com/openjdk/ custom_output.json
+go run huawei.go https://mirrors.huaweicloud.com/openjdk/ custom_output.json
 ```
 
 ### 编译运行
 
 ```bash
 # 编译
-go build parse_jdk_html.go
+go build huawei.go
 
 # 运行
-./parse_jdk_html
+./huawei
 
 # Windows
-parse_jdk_html.exe
+huawei.exe
 ```
 
 ## 输出格式
