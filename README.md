@@ -333,7 +333,7 @@ A: Windows 创建符号链接需要管理员权限。只在 `jvms init` 和 `jvm
 
 ### 相关文档
 
-- [华为云镜像解析工具文档](utils\jdk\huawei.md) - 详细了解 JDK 镜像解析功能
+- [华为云镜像解析工具文档](utils/jdk/huawei.md) - 详细了解 JDK 镜像解析功能
 
 ### 更新日志
 
