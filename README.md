@@ -180,7 +180,7 @@ C:\jvms\
           └── ...
 ```
 
-![JDK目录示例](https://user-images.githubusercontent.com/4478635/168568154-3fef53a4-1660-4b87-b99a-4580bd61ad0d.png)
+![JDK目录示例](images/安装目录.jpg)
 
 #### 配置下载代理
 
