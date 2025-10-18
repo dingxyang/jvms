@@ -7,28 +7,34 @@ import (
 	"path/filepath"
 
 	"github.com/codegangsta/cli"
-	"github.com/ystyle/jvms/internal/entity"
-	"github.com/ystyle/jvms/utils/file"
-	"github.com/ystyle/jvms/utils/jdk"
-	"github.com/ystyle/jvms/utils/web"
+	"github.com/tea4go/jvms/internal/entity"
+	"github.com/tea4go/jvms/utils/file"
+	"github.com/tea4go/jvms/utils/jdk"
+	"github.com/tea4go/jvms/utils/web"
 )
 
+// install 创建安装JDK的命令
+// 从远程源下载并安装指定版本的JDK
+// 参数:
+//   cfx - 配置对象指针
+// 返回值:
+//   *cli.Command - CLI命令对象指针
 func install(cfx *entity.Config) *cli.Command {
 	cmd := &cli.Command{
 		Name:      "install",
 		ShortName: "i",
-		Usage:     "Install available remote jdk",
+		Usage:     "安装可用的远程JDK",
 		Action: func(c *cli.Context) error {
 			if cfx.Proxy != "" {
 				web.SetProxy(cfx.Proxy)
 			}
 			v := c.Args().Get(0)
 			if v == "" {
-				return errors.New("invalid version., Type \"jvms rls\" to see what is available for install")
+				return errors.New("无效的版本，输入 \"jvms rls\" 查看可供安装的版本")
 			}
 
 			if jdk.IsVersionInstalled(cfx.Store, v) {
-				fmt.Println("Version " + v + " is already installed.")
+				fmt.Println("版本 " + v + " 已经安装。")
 				return nil
 			}
 			versions, err := getJdkVersions(cfx)
@@ -47,9 +53,9 @@ func install(cfx *entity.Config) *cli.Command {
 				if version.Version == v {
 					dlzipfile, success := web.GetJDK(cfx.Download, v, version.Url)
 					if success {
-						fmt.Printf("Installing JDK %s ...\n", v)
+						fmt.Printf("正在安装 JDK %s ...\n", v)
 
-						// Extract jdk to the temp directory
+						// 解压 JDK 到临时目录
 						jdktempfile := filepath.Join(cfx.Download, fmt.Sprintf("%s_temp", v))
 						if file.Exists(jdktempfile) {
 							err := os.RemoveAll(jdktempfile)
@@ -59,27 +65,27 @@ func install(cfx *entity.Config) *cli.Command {
 						}
 						err := file.Unzip(dlzipfile, jdktempfile)
 						if err != nil {
-							return fmt.Errorf("unzip failed: %w", err)
+							return fmt.Errorf("解压失败: %w", err)
 						}
 
-						// Copy the jdk files to the installation directory
+						// 复制 JDK 文件到安装目录
 						temJavaHome := getJavaHome(jdktempfile)
 						err = os.Rename(temJavaHome, filepath.Join(cfx.Store, v))
 						if err != nil {
-							return fmt.Errorf("unzip failed: %w", err)
+							return fmt.Errorf("解压失败: %w", err)
 						}
 
-						// Remove the temp directory
-						// may consider keep the temp files here
+						// 删除临时目录
+						// 可以考虑保留临时文件
 						os.RemoveAll(jdktempfile)
-						fmt.Printf("Installation completedly succesfully. Use: jvms switch %v, if you'd like to use this version", v)
+						fmt.Printf("安装成功完成。如果您想使用此版本，请使用: jvms switch %v", v)
 					} else {
-						fmt.Println("Could not download JDK " + v + " executable.")
+						fmt.Println("无法下载 JDK " + v + " 可执行文件。")
 					}
 					return nil
 				}
 			}
-			return errors.New("invalid version., Type \"jvms rls\" to see what is available for install")
+			return errors.New("无效的版本，输入 \"jvms rls\" 查看可供安装的版本")
 		},
 	}
 	return cmd

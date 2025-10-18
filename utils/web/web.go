@@ -1,10 +1,8 @@
 package web
 
 import (
-	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -16,6 +14,9 @@ import (
 
 var client = &http.Client{}
 
+// SetProxy 设置 HTTP 代理
+// 参数:
+//   p - 代理服务器地址，如果为空或 "none" 则不使用代理
 func SetProxy(p string) {
 	if p != "" && p != "none" {
 		proxyUrl, _ := url.Parse(p)
@@ -25,21 +26,27 @@ func SetProxy(p string) {
 	}
 }
 
+// Download 下载文件并显示进度条
+// 参数:
+//   url - 下载文件的 URL
+//   target - 保存文件的目标路径
+// 返回值:
+//   bool - 下载成功返回 true，失败返回 false
 func Download(url string, target string) bool {
 	response, err := client.Get(url)
 	if err != nil {
-		fmt.Println("Error while downloading", url, "-", err)
+		fmt.Println("下载时出错", url, "-", err)
 		return false
 	}
 	if response.StatusCode != 200 {
-		fmt.Println("Error status while downloading", url, "-", response.StatusCode)
+		fmt.Println("下载时状态错误", url, "-", response.StatusCode)
 		return false
 	}
 	defer response.Body.Close()
 
 	output, err := os.Create(target)
 	if err != nil {
-		fmt.Println("Error while creating", target, "-", err)
+		fmt.Println("创建文件时出错", target, "-", err)
 		return false
 	}
 	defer output.Close()
@@ -61,7 +68,7 @@ func Download(url string, target string) bool {
 	writer := io.MultiWriter(output, bar)
 	_, err = io.Copy(writer, response.Body)
 	if err != nil {
-		fmt.Println("Error while downloading", url, "-", err)
+		fmt.Println("下载时出错", url, "-", err)
 		return false
 	}
 	bar.Finish()
@@ -69,16 +76,24 @@ func Download(url string, target string) bool {
 	return true
 }
 
+// GetJDK 下载指定版本的 JDK
+// 参数:
+//   download - 下载文件保存的目录路径
+//   v - JDK 版本号
+//   url - JDK 下载 URL
+// 返回值:
+//   string - 下载的文件路径，失败则返回空字符串
+//   bool - 下载成功返回 true，失败返回 false
 func GetJDK(download string, v string, url string) (string, bool) {
 	fileName := filepath.Join(download, fmt.Sprintf("%s.zip", v))
 	os.Remove(fileName)
 	if url == "" {
-		//No url should mean this version/arch isn't available
-		fmt.Printf("JDK %s isn't available right now.", v)
+		// 没有 URL 意味着该版本/架构不可用
+		fmt.Printf("JDK %s 当前不可用。", v)
 	} else {
-		fmt.Printf("Downloading jdk version %s...\n", v)
+		fmt.Printf("正在下载 JDK 版本 %s...\n", v)
 		if Download(url, fileName) {
-			fmt.Println("Complete")
+			fmt.Println("完成")
 			return fileName, true
 		} else {
 			return "", false
@@ -88,16 +103,3 @@ func GetJDK(download string, v string, url string) (string, bool) {
 
 }
 
-func GetRemoteTextFile(url string) (string, error) {
-	response, httperr := client.Get(url)
-	if httperr != nil {
-		return "", errors.New(fmt.Sprintf("\nCould not retrieve %s.\n\n%s\n", url, httperr.Error()))
-	} else {
-		defer response.Body.Close()
-		contents, readerr := ioutil.ReadAll(response.Body)
-		if readerr != nil {
-			return "", errors.New(fmt.Sprintf("%s", readerr))
-		}
-		return string(contents), nil
-	}
-}

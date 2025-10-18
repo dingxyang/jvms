@@ -1,23 +1,26 @@
 package cmdCli
 
 import (
-	"encoding/json"
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/baneeishaque/adoptium_jdk_go"
-	"github.com/ystyle/jvms/internal/entity"
-	"github.com/ystyle/jvms/utils/jdk"
-	"github.com/ystyle/jvms/utils/web"
+	"github.com/tea4go/jvms/internal/entity"
+	"github.com/tea4go/jvms/utils/jdk"
 )
 
-// getSImilarAvailableVersions by version to support version not found error
+// getSimilarAvailableVersions 根据版本获取相似的可用版本，用于支持版本未找到错误提示
 // func getSimilarAvailableVersions(version string) {
 
 // }
 
+// getJavaHome 从临时JDK文件目录中获取JAVA_HOME路径
+// 参数:
+//   jdkTempFile - JDK临时解压目录路径
+// 返回值:
+//   string - JAVA_HOME路径(包含javac.exe的父目录)
 func getJavaHome(jdkTempFile string) string {
 	var javaHome string
 	fs.WalkDir(os.DirFS(jdkTempFile), ".", func(path string, d fs.DirEntry, err error) error {
@@ -31,32 +34,24 @@ func getJavaHome(jdkTempFile string) string {
 	return javaHome
 }
 
+// getJdkVersions 获取可供下载的JDK版本列表
+// 参数:
+//   cfx - 配置对象指针
+// 返回值:
+//   []entity.JdkVersion - JDK版本列表
+//   error - 错误信息
 func getJdkVersions(cfx *entity.Config) ([]entity.JdkVersion, error) {
-	jsonContent, err := web.GetRemoteTextFile(cfx.Originalpath)
-	if err != nil {
-		return nil, err
-	}
 	var versions []entity.JdkVersion
-	err = json.Unmarshal([]byte(jsonContent), &versions)
-	if err != nil {
-		return nil, err
-	}
-	//fmt.Println(versions)
-	adoptiumJdks := strings.Split(adoptium_jdk_go.ApiListReleases(), "\n")
-	for _, adoptiumJdkUrl := range adoptiumJdks {
-		fileSeparatorIndex := strings.LastIndex(adoptiumJdkUrl, "/")
-		fileName := adoptiumJdkUrl[fileSeparatorIndex+1:]
-		fileVersion := strings.TrimSuffix(fileName, ".zip")
-		//fmt.Println(fileVersion)
-		versions = append(versions, entity.JdkVersion{Version: fileVersion, Url: adoptiumJdkUrl})
+
+	fmt.Println("")
+	fmt.Println("-= Huawei OpenJDK Mirror =-")
+	// 华为镜像 JDKs
+	huaweiJdks := jdk.HuaweiJDKs()
+	for _, huaweiJdk := range huaweiJdks {
+		versionName := fmt.Sprintf("openjdk-%s", huaweiJdk.Version)
+		fmt.Printf("%s [%s/%s] %s\n", versionName, huaweiJdk.GOOS, huaweiJdk.GOARCH, huaweiJdk.URL)
+		versions = append(versions, entity.JdkVersion{Version: versionName, Url: huaweiJdk.URL})
 	}
 
-	//Azul JDKs
-	azulJdks := jdk.AzulJDKs()
-	for _, azulJdk := range azulJdks {
-		versions = append(versions, entity.JdkVersion{Version: azulJdk.ShortName, Url: azulJdk.DownloadURL})
-	}
-
-	//fmt.Println(versions)
 	return versions, nil
 }

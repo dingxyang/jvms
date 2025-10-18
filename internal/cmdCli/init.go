@@ -8,24 +8,31 @@ import (
 	"path/filepath"
 
 	"github.com/codegangsta/cli"
-	"github.com/ystyle/jvms/internal/entity"
-	"github.com/ystyle/jvms/utils/file"
+	"github.com/tea4go/jvms/internal/entity"
+	"github.com/tea4go/jvms/utils/file"
 )
 
+// init_ 创建初始化命令
+// 用于初始化配置文件和设置环境变量
+// 参数:
+//   defaultOriginalpath - 默认的JDK下载索引文件URL
+//   cfx - 配置对象指针
+// 返回值:
+//   *cli.Command - CLI命令对象指针
 func init_(defaultOriginalpath string, cfx *entity.Config) *cli.Command {
 	return &cli.Command{
 		Name:        "init",
-		Usage:       "Initialize config file",
-		Description: `before init you should clear JAVA_HOME, PATH Environment variable。`,
+		Usage:       "初始化配置文件",
+		Description: `初始化前请先清空 JAVA_HOME 和 PATH 环境变量。`,
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "java_home",
-				Usage: "the JAVA_HOME location",
+				Usage: "JAVA_HOME 位置",
 				Value: filepath.Join(os.Getenv("ProgramFiles"), "jdk"),
 			},
 			cli.StringFlag{
 				Name:  "originalpath",
-				Usage: "the jdk download index file url.",
+				Usage: "JDK 下载索引文件 URL",
 				Value: defaultOriginalpath,
 			},
 		},
@@ -36,9 +43,9 @@ func init_(defaultOriginalpath string, cfx *entity.Config) *cli.Command {
 			cmd := exec.Command("cmd", "/C", "setx", "JAVA_HOME", cfx.JavaHome, "/M")
 			err := cmd.Run()
 			if err != nil {
-				return errors.New("set Environment variable `JAVA_HOME` failure: Please run as admin user")
+				return errors.New("设置环境变量 `JAVA_HOME` 失败: 请以管理员身份运行")
 			}
-			fmt.Println("set `JAVA_HOME` Environment variable to ", cfx.JavaHome)
+			fmt.Println("设置 `JAVA_HOME` 环境变量为 ", cfx.JavaHome)
 
 			if c.IsSet("originalpath") || cfx.Originalpath == "" {
 				cfx.Originalpath = c.String("originalpath")
@@ -47,9 +54,9 @@ func init_(defaultOriginalpath string, cfx *entity.Config) *cli.Command {
 			cmd = exec.Command("cmd", "/C", "setx", "path", path, "/m")
 			err = cmd.Run()
 			if err != nil {
-				return errors.New("set Environment variable `PATH` failure: Please run as admin user")
+				return errors.New("设置环境变量 `PATH` 失败: 请以管理员身份运行")
 			}
-			fmt.Println("add jvms.exe to `path` Environment variable")
+			fmt.Println("添加 jvms.exe 到 `path` 环境变量")
 			return nil
 		},
 	}

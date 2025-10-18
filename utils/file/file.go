@@ -2,7 +2,6 @@ package file
 
 import (
 	"archive/zip"
-	"bufio"
 	"io"
 	"log"
 	"os"
@@ -10,7 +9,13 @@ import (
 	"strings"
 )
 
-// Function courtesy http://stackoverflow.com/users/1129149/swtdrgn
+// Unzip 解压缩 zip 文件到指定目录
+// 参数:
+//   src - zip 文件的源路径
+//   dest - 解压缩的目标目录路径
+// 返回值:
+//   error - 解压过程中的错误，成功则返回 nil
+// 函数来源: http://stackoverflow.com/users/1129149/swtdrgn
 func Unzip(src, dest string) error {
 	r, err := zip.OpenReader(src)
 	if err != nil {
@@ -54,26 +59,19 @@ func Unzip(src, dest string) error {
 	return nil
 }
 
-func ReadLines(path string) ([]string, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	var lines []string
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
-	}
-	return lines, scanner.Err()
-}
-
+// Exists 检查文件或目录是否存在
+// 参数:
+//   filename - 要检查的文件或目录路径
+// 返回值:
+//   bool - 存在返回 true，否则返回 false
 func Exists(filename string) bool {
 	_, err := os.Stat(filename)
 	return err == nil
 }
 
+// GetCurrentPath 获取当前可执行文件所在的目录路径
+// 返回值:
+//   string - 当前可执行文件的目录路径，获取失败则返回空字符串
 func GetCurrentPath() string {
 	currentDir, err := os.Executable()
 	if err != nil {

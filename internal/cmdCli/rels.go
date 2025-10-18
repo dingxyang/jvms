@@ -4,18 +4,24 @@ import (
 	"fmt"
 
 	"github.com/codegangsta/cli"
-	"github.com/ystyle/jvms/internal/entity"
-	"github.com/ystyle/jvms/utils/web"
+	"github.com/tea4go/jvms/internal/entity"
+	"github.com/tea4go/jvms/utils/web"
 )
 
+// rls 创建显示可下载版本列表的命令
+// 显示可供下载的JDK版本列表
+// 参数:
+//   cfx - 配置对象指针
+// 返回值:
+//   *cli.Command - CLI命令对象指针
 func rls(cfx *entity.Config) *cli.Command {
 	cmd := &cli.Command{
 		Name:  "rls",
-		Usage: "Show a list of versions available for download. ",
+		Usage: "显示可供下载的版本列表",
 		Flags: []cli.Flag{
 			cli.BoolFlag{
 				Name:  "a",
-				Usage: "list all the version",
+				Usage: "列出所有版本",
 			},
 		},
 		Action: func(c *cli.Context) error {
@@ -29,15 +35,15 @@ func rls(cfx *entity.Config) *cli.Command {
 			for i, version := range versions {
 				fmt.Printf("    %d) %s\n", i+1, version.Version)
 				if !c.Bool("a") && i >= 9 {
-					fmt.Println("\nuse \"jvm rls -a\" show all the versions ")
+					fmt.Println("\n使用 \"jvm rls -a\" 显示所有版本")
 					break
 				}
 			}
 			if len(versions) == 0 {
-				fmt.Println("No availabled jdk veriosn for download.")
+				fmt.Println("没有可供下载的 jdk 版本。")
 			}
 
-			fmt.Printf("\nFor a complete list, visit %s\n", cfx.Originalpath)
+			fmt.Printf("\n完整列表请访问 %s\n", cfx.Originalpath)
 			return nil
 		},
 	}

@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//d/MyWork/GitCode/jvms/**)",
+      "Bash(go get golang.org/x/net/html)",
+      "Bash(go run parse_jdk_html.go)",
+      "Bash(./jvms.exe rls)",
+      "Bash(./jvms.exe rls -a)",
+      "Bash(find . -name \"*.go\" -type f -exec sed -i 's|github.com/ystyle/jvms|github.com/tea4go/jvms|g' {} ;)",
+      "Bash(go mod tidy)",
+      "Bash(go build -o jvms.exe)",
+      "Bash(./jvms.exe --version)",
+      "Bash(./jvms.exe help)",
+      "Bash(go run golang.org/x/tools/cmd/deadcode@latest -test .)",
+      "Bash(awk '{print $5, $9}')"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

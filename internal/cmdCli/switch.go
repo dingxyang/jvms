@@ -9,66 +9,77 @@ import (
 	"strconv"
 
 	"github.com/codegangsta/cli"
-	"github.com/ystyle/jvms/internal/entity"
-	"github.com/ystyle/jvms/utils/file"
-	"github.com/ystyle/jvms/utils/jdk"
+	"github.com/tea4go/jvms/internal/entity"
+	"github.com/tea4go/jvms/utils/file"
+	"github.com/tea4go/jvms/utils/jdk"
 )
 
+// switch_ 创建切换JDK版本的命令
+// 切换到指定版本或索引号的JDK
+// 参数:
+//   cfx - 配置对象指针
+// 返回值:
+//   *cli.Command - CLI命令对象指针
 func switch_(cfx *entity.Config) *cli.Command {
 	cmd := &cli.Command{
 		Name:      "switch",
 		ShortName: "s",
-		Usage:     "Switch to use the specified version or index number.",
+		Usage:     "切换使用指定的版本或索引号",
 		Action:    switchFunc(*cfx),
 	}
 	return cmd
 }
 
+// switchFunc 返回切换JDK版本的处理函数
+// 参数:
+//   cfx - 配置对象
+// 返回值:
+//   func(*cli.Context) error - CLI处理函数
 func switchFunc(cfx entity.Config) func(*cli.Context) error {
 	return func(c *cli.Context) error {
 		v := c.Args().Get(0)
 		if v == "" {
-			return errors.New("you should input a version or index number, Type \"jvms list\" to see what is installed")
+			return errors.New("您应该输入版本或索引号，输入 \"jvms list\" 查看已安装的版本")
 		}
 
-		// Check if input is a number (index)
+		// 检查输入是否为数字（索引）
 		index, err := strconv.Atoi(v)
 		if err == nil && index > 0 {
-			// Input is a valid number, get the list of installed JDKs
+			// 输入是有效的数字，获取已安装的JDK列表
 			installedJDKs := jdk.GetInstalled(cfx.Store)
 			if len(installedJDKs) == 0 {
-				return errors.New("no JDK installations found")
+				return errors.New("未找到已安装的JDK")
 			}
 
 			if index > len(installedJDKs) {
-				return fmt.Errorf("invalid index: %d, should be between 1 and %d", index, len(installedJDKs))
+				return fmt.Errorf("无效的索引: %d，应该在 1 到 %d 之间", index, len(installedJDKs))
 			}
 
 			v = installedJDKs[index-1]
-			fmt.Printf("Using index %d to select JDK %s\n", index, v)
+			fmt.Printf("使用索引 %d 选择 JDK %s\n", index, v)
 		}
 
 		if !jdk.IsVersionInstalled(cfx.Store, v) {
-			fmt.Printf("jdk %s is not installed. ", v)
+			fmt.Printf("jdk %s 未安装。", v)
 			return nil
 		}
-		// Create or update the symlink
+		// 创建或更新符号链接
 		if file.Exists(cfx.JavaHome) {
 			err := os.Remove(cfx.JavaHome)
 			if err != nil {
-				return errors.New("Switch jdk failed, please manually remove " + cfx.JavaHome)
+				return errors.New("切换 jdk 失败，请手动删除 " + cfx.JavaHome)
 			}
 		}
 		cmd := exec.Command("cmd", "/C", "setx", "JAVA_HOME", cfx.JavaHome, "/M")
 		err = cmd.Run()
 		if err != nil {
-			return errors.New("set Environment variable `JAVA_HOME` failure: Please run as admin user")
+			return errors.New("设置环境变量 `JAVA_HOME` 失败: 请以管理员身份运行")
 		}
 		err = os.Symlink(filepath.Join(cfx.Store, v), cfx.JavaHome)
 		if err != nil {
-			return errors.New("Switch jdk failed, " + err.Error())
+			return errors.New("切换 jdk 失败, " + err.Error())
 		}
-		fmt.Println("Switch success.\nNow using JDK " + v)
+		fmt.Println("切换成功。\n当前使用 JDK " + v)
 		cfx.CurrentJDKVersion = v
 		return nil
 	}
