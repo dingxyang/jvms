@@ -102,10 +102,19 @@ jvms rls -a
 
 输出示例：
 ```
--= Huawei OpenJDK Mirror =-
-openjdk-24 [windows/amd64] https://mirrors.huaweicloud.com/openjdk/24/...
-openjdk-21 [windows/amd64] https://mirrors.huaweicloud.com/openjdk/21/...
-openjdk-17 [windows/amd64] https://mirrors.huaweicloud.com/openjdk/17/...
+从本地缓存加载版本列表...
+  1) openjdk-25
+  2) openjdk-24.0.2
+  3) openjdk-23.0.2
+  4) openjdk-22.0.2
+  5) openjdk-21.0.2
+  6) openjdk-20.0.2
+  7) openjdk-19.0.2
+  8) openjdk-18.0.2.1
+  9) openjdk-17.0.2
+ 10) openjdk-16.0.2
+
+使用 "jvm rls -a" 显示所有版本
 ```
 
 #### 2. 安装 JDK
