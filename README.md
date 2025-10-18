@@ -276,12 +276,12 @@ jvms install 17.0.10-custom   # 安装私有源中的版本
 
 JVMS 自动从以下镜像源获取 JDK 版本：
 
-### Adoptium (Eclipse Temurin)
+### Adoptium (Eclipse Temurin) (移除)
 - OpenJDK 的官方发行版
 - 长期支持（LTS）版本
 - 企业级质量保证
 
-### Azul Zulu
+### Azul Zulu (移除)
 - Azul Systems 提供的 OpenJDK 发行版
 - 支持多种平台和架构
 - 提供商业支持选项
