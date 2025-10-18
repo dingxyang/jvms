@@ -11,8 +11,8 @@ import (
 	"golang.org/x/net/html"
 )
 
-// HuaweiJDK 表示华为镜像源中的 JDK 文件信息
-type HuaweiJDK struct {
+// THuaweiJDK 表示华为镜像源中的 JDK 文件信息
+type THuaweiJDK struct {
 	Version      string // 版本号
 	Filename     string // 文件名
 	URL          string // 下载链接
@@ -24,8 +24,8 @@ type HuaweiJDK struct {
 
 // HuaweiJDKs 从华为镜像源获取所有 JDK 版本
 // 返回值:
-//   []HuaweiJDK - JDK 版本信息列表
-func HuaweiJDKs() []HuaweiJDK {
+//   []THuaweiJDK - JDK 版本信息列表
+func HuaweiJDKs() []THuaweiJDK {
 	return HuaweiJDKsFromURL("https://mirrors.huaweicloud.com/openjdk/")
 }
 
@@ -33,9 +33,9 @@ func HuaweiJDKs() []HuaweiJDK {
 // 参数:
 //   baseURL - 镜像源的基础 URL
 // 返回值:
-//   []HuaweiJDK - JDK 版本信息列表
-func HuaweiJDKsFromURL(baseURL string) []HuaweiJDK {
-	var allJDKs []HuaweiJDK
+//   []THuaweiJDK - JDK 版本信息列表
+func HuaweiJDKsFromURL(baseURL string) []THuaweiJDK {
+	var allJDKs []THuaweiJDK
 
 	// 获取版本列表
 	versions := fetchVersionList(baseURL)
@@ -133,8 +133,8 @@ func extractVersions(n *html.Node) []string {
 //   versionURL - 版本目录的 URL
 //   version - 版本号
 // 返回值:
-//   []HuaweiJDK - 该版本的 JDK 文件信息列表
-func fetchVersionFiles(versionURL string, version string) []HuaweiJDK {
+//   []THuaweiJDK - 该版本的 JDK 文件信息列表
+func fetchVersionFiles(versionURL string, version string) []THuaweiJDK {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", versionURL, nil)
 	if err != nil {
@@ -167,9 +167,9 @@ func fetchVersionFiles(versionURL string, version string) []HuaweiJDK {
 //   baseURL - 基础 URL
 //   version - 版本号
 // 返回值:
-//   []HuaweiJDK - JDK 文件信息列表
-func extractFiles(n *html.Node, baseURL string, version string) []HuaweiJDK {
-	var files []HuaweiJDK
+//   []THuaweiJDK - JDK 文件信息列表
+func extractFiles(n *html.Node, baseURL string, version string) []THuaweiJDK {
+	var files []THuaweiJDK
 	filePattern := regexp.MustCompile(`\.(tar\.gz|zip|msi|pkg|bin)$`)
 
 	var traverse func(*html.Node)
@@ -188,7 +188,7 @@ func extractFiles(n *html.Node, baseURL string, version string) []HuaweiJDK {
 				size := extractSize(n)
 				goos, goarch := parseOSAndArch(href)
 
-				files = append(files, HuaweiJDK{
+				files = append(files, THuaweiJDK{
 					Version:      strings.TrimSuffix(version, "/"),
 					Filename:     href,
 					URL:          baseURL + href,

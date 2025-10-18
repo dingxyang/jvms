@@ -14,7 +14,7 @@ import (
 //   cfx - 配置对象指针
 // 返回值:
 //   *cli.Command - CLI命令对象指针
-func rls(cfx *entity.Config) *cli.Command {
+func rls(cfx *entity.TConfig) *cli.Command {
 	cmd := &cli.Command{
 		Name:  "rls",
 		Usage: "显示可供下载的版本列表",

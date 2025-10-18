@@ -19,7 +19,7 @@ import (
 //   cfx - 配置对象指针
 // 返回值:
 //   *cli.Command - CLI命令对象指针
-func install(cfx *entity.Config) *cli.Command {
+func install(cfx *entity.TConfig) *cli.Command {
 	cmd := &cli.Command{
 		Name:      "install",
 		ShortName: "i",

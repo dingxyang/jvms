@@ -38,10 +38,10 @@ func getJavaHome(jdkTempFile string) string {
 // 参数:
 //   cfx - 配置对象指针
 // 返回值:
-//   []entity.JdkVersion - JDK版本列表
+//   []entity.TJdkVersion - JDK版本列表
 //   error - 错误信息
-func getJdkVersions(cfx *entity.Config) ([]entity.JdkVersion, error) {
-	var versions []entity.JdkVersion
+func getJdkVersions(cfx *entity.TConfig) ([]entity.TJdkVersion, error) {
+	var versions []entity.TJdkVersion
 
 	fmt.Println("")
 	fmt.Println("-= Huawei OpenJDK Mirror =-")
@@ -50,7 +50,7 @@ func getJdkVersions(cfx *entity.Config) ([]entity.JdkVersion, error) {
 	for _, huaweiJdk := range huaweiJdks {
 		versionName := fmt.Sprintf("openjdk-%s", huaweiJdk.Version)
 		fmt.Printf("%s [%s/%s] %s\n", versionName, huaweiJdk.GOOS, huaweiJdk.GOARCH, huaweiJdk.URL)
-		versions = append(versions, entity.JdkVersion{Version: versionName, Url: huaweiJdk.URL})
+		versions = append(versions, entity.TJdkVersion{Version: versionName, Url: huaweiJdk.URL})
 	}
 
 	return versions, nil

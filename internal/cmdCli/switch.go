@@ -20,7 +20,7 @@ import (
 //   cfx - 配置对象指针
 // 返回值:
 //   *cli.Command - CLI命令对象指针
-func switch_(cfx *entity.Config) *cli.Command {
+func switch_(cfx *entity.TConfig) *cli.Command {
 	cmd := &cli.Command{
 		Name:      "switch",
 		ShortName: "s",
@@ -35,7 +35,7 @@ func switch_(cfx *entity.Config) *cli.Command {
 //   cfx - 配置对象
 // 返回值:
 //   func(*cli.Context) error - CLI处理函数
-func switchFunc(cfx entity.Config) func(*cli.Context) error {
+func switchFunc(cfx entity.TConfig) func(*cli.Context) error {
 	return func(c *cli.Context) error {
 		v := c.Args().Get(0)
 		if v == "" {

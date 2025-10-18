@@ -14,7 +14,7 @@ import (
 //   cfx - 配置对象指针
 // 返回值:
 //   *cli.Command - CLI命令对象指针
-func list(cfx *entity.Config) *cli.Command {
+func list(cfx *entity.TConfig) *cli.Command {
 	cmd := &cli.Command{
 		Name:      "list",
 		ShortName: "ls",

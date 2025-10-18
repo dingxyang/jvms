@@ -17,7 +17,7 @@ import (
 //   cfx - 配置对象指针
 // 返回值:
 //   *cli.Command - CLI命令对象指针
-func remove(cfx *entity.Config) *cli.Command {
+func remove(cfx *entity.TConfig) *cli.Command {
 	cmd := &cli.Command{
 		Name:      "remove",
 		ShortName: "rm",

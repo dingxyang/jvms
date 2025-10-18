@@ -1,7 +1,7 @@
 package entity
 
-// Config 配置结构体，用于存储JVMS的全局配置信息
-type Config struct {
+// TConfig 配置结构体，用于存储JVMS的全局配置信息
+type TConfig struct {
 	// JavaHome Java环境变量路径
 	JavaHome string `json:"java_home"`
 	// CurrentJDKVersion 当前使用的JDK版本

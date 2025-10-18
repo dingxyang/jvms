@@ -27,7 +27,7 @@ const (
 )
 
 // cfx 全局配置对象，存储 JVMS 的运行配置
-var cfx entity.Config
+var cfx entity.TConfig
 
 // main 是程序的入口函数
 // 初始化 CLI 应用并执行用户命令
@@ -52,7 +52,7 @@ func main() {
 // commands 返回所有可用的 CLI 命令列表
 // 包括 init, list, install, switch, use, remove, rls, proxy 等命令
 func commands() []cli.Command {
-	cmds := cmdCli.Commands(&cmdCli.CommandParams{
+	cmds := cmdCli.Commands(&cmdCli.TCommandParams{
 		DefaultOriginalPath: defaultOriginalpath,
 		Config:              &cfx,
 	})

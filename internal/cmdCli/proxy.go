@@ -13,7 +13,7 @@ import (
 //   cfx - 配置对象指针
 // 返回值:
 //   *cli.Command - CLI命令对象指针
-func proxy(cfx *entity.Config) *cli.Command {
+func proxy(cfx *entity.TConfig) *cli.Command {
 	cmd := &cli.Command{
 		Name:  "proxy",
 		Usage: "设置下载使用的代理",

@@ -19,7 +19,7 @@ import (
 //   cfx - 配置对象指针
 // 返回值:
 //   *cli.Command - CLI命令对象指针
-func init_(defaultOriginalpath string, cfx *entity.Config) *cli.Command {
+func init_(defaultOriginalpath string, cfx *entity.TConfig) *cli.Command {
 	return &cli.Command{
 		Name:        "init",
 		Usage:       "初始化配置文件",
