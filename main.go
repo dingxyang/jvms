@@ -7,9 +7,9 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
 	"path/filepath"
 
-	"github.com/spf13/pflag"
 	"github.com/tea4go/jvms/internal/cmdCli"
 	"github.com/tea4go/jvms/internal/entity"
 	"github.com/tea4go/jvms/utils/file"
@@ -38,26 +38,30 @@ func main() {
 	}
 	defer shutdown()
 
-	// 定义全局标志
-	showVersion := pflag.BoolP("version", "v", false, "显示版本信息")
-	showHelp := pflag.BoolP("help", "h", false, "显示帮助信息")
+	// 使用 os.Args 直接解析，避免全局 pflag 干扰命令参数
+	args := os.Args[1:] // 跳过程序名
 
-	pflag.Parse()
-
-	// 处理全局标志
-	if *showVersion {
-		fmt.Printf("jvms version %s\n", version)
-		return
+	// 检查是否有 --version 或 -v
+	for _, arg := range args {
+		if arg == "--version" || arg == "-v" {
+			fmt.Printf("jvms version %s\n", version)
+			return
+		}
+		if arg == "--help" || arg == "-h" {
+			printUsage()
+			return
+		}
 	}
 
-	if *showHelp || pflag.NArg() == 0 {
+	// 如果没有参数，显示帮助
+	if len(args) == 0 {
 		printUsage()
 		return
 	}
 
-	// 获取命令
-	command := pflag.Arg(0)
-	args := pflag.Args()[1:]
+	// 获取命令和参数
+	command := args[0]
+	cmdArgs := args[1:]
 
 	// 创建命令参数
 	cmdParams := &cmdCli.TCommandParams{
@@ -66,7 +70,7 @@ func main() {
 	}
 
 	// 执行命令
-	if err := cmdCli.Execute(command, args, cmdParams); err != nil {
+	if err := cmdCli.Execute(command, cmdArgs, cmdParams); err != nil {
 		log.Fatal(err.Error())
 	}
 }

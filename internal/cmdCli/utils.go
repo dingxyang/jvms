@@ -5,6 +5,8 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/tea4go/jvms/internal/entity"
@@ -37,6 +39,75 @@ func getJavaHome(jdkTempFile string) string {
 	return javaHome
 }
 
+// parseVersion 解析版本号字符串为数字切片
+// 参数:
+//
+//	version - 版本号字符串，例如 "openjdk-12.0.1" 或 "12.0.1"
+//
+// 返回值:
+//
+//	[]int - 版本号数字切片，例如 [12, 0, 1]
+func parseVersion(version string) []int {
+	// 移除 "openjdk-" 前缀
+	version = strings.TrimPrefix(version, "openjdk-")
+
+	// 按点分割版本号
+	parts := strings.Split(version, ".")
+	numbers := make([]int, 0, len(parts))
+
+	for _, part := range parts {
+		// 转换为整数
+		if num, err := strconv.Atoi(part); err == nil {
+			numbers = append(numbers, num)
+		} else {
+			// 如果转换失败，视为0
+			numbers = append(numbers, 0)
+		}
+	}
+
+	return numbers
+}
+
+// compareVersions 比较两个版本号
+// 参数:
+//
+//	v1 - 版本1
+//	v2 - 版本2
+//
+// 返回值:
+//
+//	int - 如果 v1 < v2 返回 -1，v1 == v2 返回 0，v1 > v2 返回 1
+func compareVersions(v1, v2 string) int {
+	nums1 := parseVersion(v1)
+	nums2 := parseVersion(v2)
+
+	// 比较每个数字段
+	maxLen := len(nums1)
+	if len(nums2) > maxLen {
+		maxLen = len(nums2)
+	}
+
+	for i := 0; i < maxLen; i++ {
+		n1 := 0
+		n2 := 0
+
+		if i < len(nums1) {
+			n1 = nums1[i]
+		}
+		if i < len(nums2) {
+			n2 = nums2[i]
+		}
+
+		if n1 < n2 {
+			return -1
+		} else if n1 > n2 {
+			return 1
+		}
+	}
+
+	return 0
+}
+
 // getJdkVersions 获取可供下载的JDK版本列表
 // 参数:
 //
@@ -44,7 +115,7 @@ func getJavaHome(jdkTempFile string) string {
 //
 // 返回值:
 //
-//	[]entity.TJDKVersion - JDK版本列表
+//	[]entity.TJDKVersion - JDK版本列表（按版本号从大到小排序）
 //	error - 错误信息
 func getJdkVersions(cfx *entity.TConfig) ([]entity.TJDKVersion, error) {
 	var versions []entity.TJDKVersion
@@ -58,6 +129,11 @@ func getJdkVersions(cfx *entity.TConfig) ([]entity.TJDKVersion, error) {
 		//fmt.Printf("%s [%s/%s] %s\n", versionName, huaweiJdk.GOOS, huaweiJdk.GOARCH, huaweiJdk.URL)
 		versions = append(versions, entity.TJDKVersion{Version: versionName, Url: huaweiJdk.URL})
 	}
+
+	// 对版本进行排序（从大到小）
+	sort.Slice(versions, func(i, j int) bool {
+		return compareVersions(versions[i].Version, versions[j].Version) > 0
+	})
 
 	return versions, nil
 }
