@@ -53,6 +53,11 @@ func Download(url string, target string) bool {
 		fmt.Println("创建请求时出错", url, "-", err)
 		return false
 	}
+
+	// 如果下载错误，返回418，华为云更新反爬虫策略，可能需要更新 User-Agent 字符串
+	// HTTP 418 "I'm a teapot" 错误是华为云镜像的反爬虫机制：
+	// - 服务器检测到请求缺少 User-Agent 头或使用默认的 User-Agent（如 Go 的 Go-http-client/1.1）
+	// - 为了防止爬虫和自动化工具滥用，返回 418 状态码拒绝请求
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
 
 	response, err := client.Do(req)
