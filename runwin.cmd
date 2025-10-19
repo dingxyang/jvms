@@ -2,29 +2,8 @@
 chcp 65001
 cls
 
-:: 保存当前目录并切换到脚本所在目录
-pushd "%~dp0"
-
-:: 调用主逻辑子例程
-call :main %1 %2 %3
-
-:: 恢复原始目录
-popd
-
-:: 退出并返回错误码
-exit /b %errorlevel%
-
-:main
-
 set app_name=jvms
-
-:: 清git理残留的编译进程
-taskkill /f /im go.exe    >nul 2>nul
-taskkill /f /im compile.exe    >nul 2>nul
-taskkill /f /im asm.exe        >nul 2>nul
-taskkill /f /im link.exe       >nul 2>nul
-taskkill /f /im git.exe        >nul 2>nul
-taskkill /f /im %app_name%.exe >nul 2>nul
+set app_ver=3.0.5
 
 rem 获取当前时间
 set "hour=%time:~0,2%"
@@ -44,19 +23,44 @@ set "date_version=%year%%month%%day%_%hour%%minute%%second%
 set BuildTime=%date_text%
 echo 编译时间：%date_text%
 
-echo =============================================================
-echo 1 - 编译 Windows 可执行程序
-echo =============================================================
-go mod tidy
+:: 清理残留的编译进程
+taskkill /f /im go.exe    >nul 2>nul
+taskkill /f /im compile.exe    >nul 2>nul
+taskkill /f /im asm.exe        >nul 2>nul
+taskkill /f /im link.exe       >nul 2>nul
+taskkill /f /im git.exe        >nul 2>nul
+
+:: 编译程序
 SET GO111MODULE=on
 SET CGO_ENABLED=0
 SET GOOS=windows
 SET GOARCH=amd64
-go build -o %app_name%.exe -ldflags "-X main.IsBeta=%IsBeta% -X main.BuildTime=%BuildTime%" .
+taskkill /f /im %app_name%.exe >nul 2>nul
+del %app_name%.exe >nul 2>nul
+attrib -H *.old                  >nul 2>nul
+del *.exe.old                    >nul 2>nul
+
+echo =============================================================
+echo 1 - 编译 Windows 可执行程序
+echo =============================================================
+
+go build -o %app_name%.exe -ldflags "-X main.AppVersion=%app_ver% -X main.BuildTime=%BuildTime%" .
 if errorlevel 1 (
     echo 编译失败，请检查错误信息。
     exit /b 1
 )
+
+:: 获取版本号信息
+:: echo %app_name%.exe -v
+%app_name%.exe -v >nul 2>nul
+if errorlevel 1 (
+    echo [E] 获取版本失败，请确认是否有 -v 参数。
+    exit /b 1
+)
+
+for /f "delims=" %%a in ('%app_name%.exe -v') do @set "app_version=%%a"
+echo 当前版本：%app_version%
+
 
 echo 2 - 运行程序
 echo =============================================================

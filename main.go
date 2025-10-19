@@ -18,7 +18,8 @@ import (
 )
 
 // version 定义当前 JVMS 的版本号
-var version = "3.0.5"
+var AppVersion = "1.0.0"
+var BuildTime = ""
 
 // cfx 全局配置对象，存储 JVMS 的运行配置
 var cfx entity.TConfig
@@ -38,7 +39,7 @@ func main() {
 	// 检查是否有 --version 或 -v
 	for _, arg := range args {
 		if arg == "--version" || arg == "-v" {
-			fmt.Printf("jvms version %s\n", version)
+			fmt.Println(AppVersion)
 			return
 		}
 		if arg == "--help" || arg == "-h" {
@@ -76,7 +77,7 @@ func printUsage() {
 	fmt.Println("USAGE:")
 	fmt.Println("   jvms [全局选项] 命令 [命令选项] [参数...]")
 	fmt.Println("")
-	fmt.Printf("VERSION:\n   %s\n", version)
+	fmt.Printf("VERSION:\n   %s - %s\n", AppVersion, BuildTime)
 	fmt.Println("")
 	fmt.Println("COMMANDS:")
 	fmt.Println("   init        初始化配置文件")

@@ -6,3 +6,4 @@ store
 *.zip
 .run
 .claude
+jvms*.tar.gz
