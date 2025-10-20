@@ -22,8 +22,8 @@ func rlsCmd(args []string, cfx *entity.TConfig) error {
 	// 创建命令专用的 FlagSet
 	fs := pflag.NewFlagSet("rls", pflag.ContinueOnError)
 
-	showAll := fs.BoolP("a", "a", false, "列出所有版本")
-
+	showAll := fs.BoolP("all", "a", false, "列出所有版本")
+	webType := fs.StringP("webtype", "t", "huawei", "切换软件源")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
@@ -31,6 +31,8 @@ func rlsCmd(args []string, cfx *entity.TConfig) error {
 	if cfx.Proxy != "" {
 		web.SetProxy(cfx.Proxy)
 	}
+
+	cfx.WebType = *webType
 
 	versions, err := getJdkVersions(cfx)
 	if err != nil {
