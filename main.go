@@ -18,7 +18,7 @@ import (
 )
 
 // version 定义当前 JVMS 的版本号
-var AppVersion = "1.0.0"
+var AppVersion = "3.0.7"
 var BuildTime = ""
 
 // cfx 全局配置对象，存储 JVMS 的运行配置
