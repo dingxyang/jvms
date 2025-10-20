@@ -6,9 +6,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
+
+	logs "github.com/tea4go/gh/log4go"
 
 	"github.com/tea4go/jvms/internal/cmdCli"
 	"github.com/tea4go/jvms/internal/entity"
@@ -29,7 +30,8 @@ var cfx entity.TConfig
 func main() {
 	// 初始化配置
 	if err := startup(); err != nil {
-		log.Fatal(err.Error())
+		logs.Emergency(err.Error())
+		return
 	}
 	defer shutdown()
 
@@ -65,7 +67,7 @@ func main() {
 
 	// 执行命令
 	if err := cmdCli.Execute(command, cmdArgs, cmdParams); err != nil {
-		log.Fatal(err.Error())
+		logs.Emergency(err.Error())
 	}
 }
 
@@ -143,6 +145,6 @@ func startup() error {
 // 主要功能：保存配置到 jvms.json 文件
 func shutdown() {
 	if err := store.Save("jvms.json", &cfx); err != nil {
-		log.Printf("警告: 保存配置失败: %s\n", err.Error())
+		logs.Warning("警告: 保存配置失败: %s\n", err.Error())
 	}
 }

@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	logs "github.com/tea4go/gh/log4go"
 	"github.com/tea4go/jvms/internal/entity"
 	"github.com/tea4go/jvms/utils/file"
 	"github.com/tea4go/jvms/utils/jdk"
@@ -239,49 +240,49 @@ func getJdkVersions(cfx *entity.TConfig) ([]entity.TJDKVersion, error) {
 	// 根据 webtype 参数选择不同的镜像源
 	switch strings.ToLower(cfx.WebType) {
 	case "tuna":
-		fmt.Println("\n📦 使用镜像源: 清华大学 (Tsinghua University)")
+		logs.Debug("\n📦 使用镜像源: 清华大学 (Tsinghua University)")
 		WebJDK := jdk.TWebTuna{}
 		WebJDK.BaseURL = "https://mirrors.tuna.tsinghua.edu.cn/Adoptium/"
-		fmt.Printf("🔗 镜像地址: %s\n\n", WebJDK.BaseURL)
+		logs.Debug("🔗 镜像地址: %s\n\n", WebJDK.BaseURL)
 		downOpenJDKs, err = WebJDK.ParseURL()
 
 	case "lzu":
-		fmt.Println("\n📦 使用镜像源: 兰州大学 (Lanzhou University)")
+		logs.Debug("\n📦 使用镜像源: 兰州大学 (Lanzhou University)")
 		WebJDK := jdk.TWebLzu{}
 		WebJDK.BaseURL = "https://mirror4.lzu.edu.cn/openjdk/"
-		fmt.Printf("🔗 镜像地址: %s\n\n", WebJDK.BaseURL)
+		logs.Debug("🔗 镜像地址: %s\n\n", WebJDK.BaseURL)
 		downOpenJDKs, err = WebJDK.ParseURL()
 
 	case "huawei":
-		fmt.Println("\n📦 使用镜像源: 华为云 (Huawei Cloud)")
+		logs.Debug("\n📦 使用镜像源: 华为云 (Huawei Cloud)")
 		WebJDK := jdk.TWebHuawei{}
 		WebJDK.BaseURL = "https://mirrors.huaweicloud.com/openjdk/"
-		fmt.Printf("🔗 镜像地址: %s\n\n", WebJDK.BaseURL)
+		logs.Debug("🔗 镜像地址: %s\n\n", WebJDK.BaseURL)
 		downOpenJDKs, err = WebJDK.ParseURL()
 
 	case "injdk":
-		fmt.Println("\n📦 使用镜像源: InJDK 网站")
+		logs.Debug("\n📦 使用镜像源: InJDK 网站")
 		WebJDK := jdk.TWebInjdk{}
 		WebJDK.BaseURL = "https://d10.injdk.cn/openjdk/openjdk/"
-		fmt.Printf("🔗 镜像地址: %s\n\n", WebJDK.BaseURL)
+		logs.Debug("🔗 镜像地址: %s\n\n", WebJDK.BaseURL)
 		downOpenJDKs, err = WebJDK.ParseURL()
 
 	case "azul":
-		fmt.Println("\n📦 使用镜像源: Azul Zulu")
+		logs.Debug("\n📦 使用镜像源: Azul Zulu")
 		WebJDK := jdk.TWebAzul{}
 		WebJDK.BaseURL = "https://api.azul.com/metadata/v1/zulu/packages"
-		fmt.Printf("🔗 镜像地址: %s\n\n", WebJDK.BaseURL)
+		logs.Debug("🔗 镜像地址: %s\n\n", WebJDK.BaseURL)
 		downOpenJDKs, err = WebJDK.ParseURL()
 
 	case "adoptium":
-		fmt.Println("\n📦 使用镜像源: Eclipse Adoptium")
+		logs.Debug("\n📦 使用镜像源: Eclipse Adoptium")
 		WebJDK := jdk.TWebAdoptium{}
 		WebJDK.BaseURL = "https://api.adoptium.net/v3"
-		fmt.Printf("🔗 镜像地址: %s\n\n", WebJDK.BaseURL)
+		logs.Debug("🔗 镜像地址: %s\n\n", WebJDK.BaseURL)
 		downOpenJDKs, err = WebJDK.ParseURL()
 
 	default:
-		fmt.Printf("❌ 错误: 未知的镜像源类型 '%s'\n", cfx.WebType)
+		fmt.Println("❌ 错误: 未知的镜像源类型 '%s'\n", cfx.WebType)
 		fmt.Println("\n可用的镜像源:")
 		fmt.Println("  lzu      - 兰州大学开源软件镜像站")
 		fmt.Println("  tuna     - 清华大学开源软件镜像站")
@@ -293,7 +294,6 @@ func getJdkVersions(cfx *entity.TConfig) ([]entity.TJDKVersion, error) {
 	}
 	// 检查爬取是否出错
 	if err != nil {
-		fmt.Printf("❌ 错误: %v\n", err)
 		return nil, err
 	}
 
@@ -336,7 +336,7 @@ func getJdkVersions(cfx *entity.TConfig) ([]entity.TJDKVersion, error) {
 		fmt.Printf("警告: 保存缓存失败: %v\n", err)
 		// 不返回错误，因为主要功能已经完成
 	} else {
-		fmt.Println("版本列表已缓存到本地")
+		fmt.Println("版本列表已缓存到本地 -", cacheFile)
 	}
 
 	return versions, nil

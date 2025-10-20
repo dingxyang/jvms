@@ -64,4 +64,5 @@ echo 当前版本：%app_version%
 
 echo 2 - 运行程序
 echo =============================================================
-echo %app_name% rls
+del jdkdlindex.json
+%app_name% rls -t lzu

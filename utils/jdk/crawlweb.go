@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	logs "github.com/tea4go/gh/log4go"
 	"golang.org/x/net/html"
 )
 
@@ -480,7 +481,7 @@ func getTextContent(n *html.Node) string {
 //   - []string: 版本目录列表
 //   - error: 错误信息
 func getVerDirs(url string) ([]string, error) {
-	fmt.Println("正在获取版本目录列表...", url)
+	logs.Debug("正在获取版本目录列表...")
 	htmlContent, err := fetchHTML(url)
 	if err != nil {
 		return nil, err
@@ -511,7 +512,7 @@ func getVerDirs(url string) ([]string, error) {
 		cleanLinks = append(cleanLinks, cleanLink)
 	}
 
-	fmt.Printf("找到 %d 个版本目录\n", len(cleanLinks))
+	logs.Debug("找到 %d 个版本目录", len(cleanLinks))
 	return cleanLinks, nil
 }
 
@@ -662,7 +663,7 @@ func saveToJSON(downloads []TOpenJDK, filename string) error {
 		return fmt.Errorf("写入文件失败: %v", err)
 	}
 
-	fmt.Printf("\n成功保存 %d 个下载地址到 %s\n", len(downloads), filename)
+	logs.Debug("成功保存 %d 个下载地址到 %s", len(downloads), filename)
 	return nil
 }
 
@@ -687,14 +688,14 @@ func (s *TWebTuna) ParseURL() ([]TOpenJDK, error) {
 		versionURL := s.BaseURL + version
 		// 去除版本号中的 '/' 字符用于显示
 		versionDisplay := strings.TrimSuffix(version, "/")
-		fmt.Println("==================================================")
-		fmt.Printf("-= 处理 JDK %s 版本 =-\n", versionDisplay)
-		fmt.Println("==================================================")
+		logs.Debug("==================================================")
+		logs.Debug("-= 处理 JDK %s 版本 =-", versionDisplay)
+		logs.Debug("==================================================")
 
 		// 3. 获取 jdk 目录
 		jdkDir, err := getJDKDirectory(versionURL)
 		if err != nil {
-			fmt.Printf("  获取jdk目录失败: %v\n", err)
+			logs.Warning("  获取jdk目录失败: %v", err)
 			continue
 		}
 		jdkURL := versionURL + jdkDir
@@ -702,7 +703,7 @@ func (s *TWebTuna) ParseURL() ([]TOpenJDK, error) {
 		// 4. 获取架构目录
 		archs, err := getArchDirs(jdkURL)
 		if err != nil {
-			fmt.Printf("  获取架构目录失败: %v\n", err)
+			logs.Warning("  获取架构目录失败: %v", err)
 			continue
 		}
 
@@ -719,7 +720,7 @@ func (s *TWebTuna) ParseURL() ([]TOpenJDK, error) {
 			// 6. 获取操作系统目录
 			osDirs, err := getOSDirs(archURL)
 			if err != nil {
-				fmt.Printf("      获取操作系统目录失败: %v\n", err)
+				logs.Warning("获取操作系统目录失败: %v", err)
 				continue
 			}
 
@@ -736,14 +737,14 @@ func (s *TWebTuna) ParseURL() ([]TOpenJDK, error) {
 				// 8. 获取 JDK 文件
 				downloads, err := s.GetJDKFiles(osURL, osDir, arch)
 				if err != nil {
-					fmt.Printf("        获取文件失败: %v\n", err)
+					logs.Warning("获取文件失败: %v", err)
 					continue
 				}
 
 				// 打印找到的 OpenJDK 信息
 				if len(downloads) > 0 {
 					for _, jdk := range downloads {
-						fmt.Printf("%s\n", jdk.String())
+						logs.Debug("%s", jdk.String())
 					}
 				}
 				allDownloads = append(allDownloads, downloads...)
@@ -821,21 +822,21 @@ func (s *TWebLzu) ParseURL() ([]TOpenJDK, error) {
 		versionURL := s.BaseURL + version
 		// 去除版本号中的 '/' 字符用于显示
 		versionDisplay := strings.TrimSuffix(version, "/")
-		fmt.Println("==================================================")
-		fmt.Printf("-= 处理 JDK %s 版本 =-\n", versionDisplay)
-		fmt.Println("==================================================")
+		logs.Debug("==================================================")
+		logs.Debug("-= 处理 JDK %s 版本 =-", versionDisplay)
+		logs.Debug("==================================================")
 
 		// 8. 获取 JDK 文件
 		downloads, err := s.GetJDKFiles(versionURL)
 		if err != nil {
-			fmt.Printf("        获取文件失败: %v\n", err)
+			logs.Warning("获取文件失败: %v", err)
 			continue
 		}
 
 		// 打印找到的 OpenJDK 信息
 		if len(downloads) > 0 {
 			for _, jdk := range downloads {
-				fmt.Printf("%s\n", jdk.String())
+				logs.Debug("%s", jdk.String())
 			}
 		}
 		allDownloads = append(allDownloads, downloads...)
@@ -867,7 +868,7 @@ func (s *TWebLzu) GetJDKFiles(fileURL string) ([]TOpenJDK, error) {
 
 		goos, goarch, _, err := s.ParseWebFileName(file.Name)
 		if err != nil {
-			fmt.Println(err)
+			logs.Warning(err)
 			continue
 		}
 
@@ -946,27 +947,27 @@ func (s *TWebInjdk) ParseURL() ([]TOpenJDK, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("getVerDirs", len(versions))
+
 	// 2. 遍历每个版本
 	for _, version := range versions {
 		versionURL := s.BaseURL + version
 		// 去除版本号中的 '/' 字符用于显示
 		versionDisplay := strings.TrimSuffix(version, "/")
-		fmt.Println("==================================================")
-		fmt.Printf("-= 处理 JDK %s 版本 =-\n", versionDisplay)
-		fmt.Println("==================================================")
+		logs.Debug("==================================================")
+		logs.Debug("-= 处理 JDK %s 版本 =-", versionDisplay)
+		logs.Debug("==================================================")
 
 		// 3. 获取 JDK 文件
 		downloads, err := s.GetJDKFiles(versionURL)
 		if err != nil {
-			fmt.Printf("        获取文件失败: %v\n", err)
+			logs.Warning("获取文件失败: %v", err)
 			continue
 		}
 
 		// 打印找到的 OpenJDK 信息
 		if len(downloads) > 0 {
 			for _, jdk := range downloads {
-				fmt.Printf("%s\n", jdk.String())
+				logs.Debug("%s", jdk.String())
 			}
 		}
 		allDownloads = append(allDownloads, downloads...)
@@ -1004,7 +1005,7 @@ func (s *TWebInjdk) GetJDKFiles(fileURL string) ([]TOpenJDK, error) {
 
 		goos, goarch, _, err := s.ParseWebFileName(file.Name)
 		if err != nil {
-			fmt.Println(err)
+			logs.Warning(err)
 			continue
 		}
 
@@ -1150,21 +1151,21 @@ func (s *TWebHuawei) ParseURL() ([]TOpenJDK, error) {
 		versionURL := s.BaseURL + version
 		// 去除版本号中的 '/' 字符用于显示
 		versionDisplay := strings.TrimSuffix(version, "/")
-		fmt.Println("==================================================")
-		fmt.Printf("-= 处理 JDK %s 版本 =-\n", versionDisplay)
-		fmt.Println("==================================================")
+		logs.Debug("==================================================")
+		logs.Debug("-= 处理 JDK %s 版本 =-", versionDisplay)
+		logs.Debug("==================================================")
 
 		// 3. 获取 JDK 文件
 		downloads, err := s.GetJDKFiles(versionURL)
 		if err != nil {
-			fmt.Printf("        获取文件失败: %v\n", err)
+			logs.Warning("获取文件失败: %v", err)
 			continue
 		}
 
 		// 打印找到的 OpenJDK 信息
 		if len(downloads) > 0 {
 			for _, jdk := range downloads {
-				fmt.Printf("%s\n", jdk.String())
+				logs.Debug("%s", jdk.String())
 			}
 		}
 		allDownloads = append(allDownloads, downloads...)
@@ -1202,7 +1203,7 @@ func (s *TWebHuawei) GetJDKFiles(fileURL string) ([]TOpenJDK, error) {
 
 		goos, goarch, _, err := s.ParseWebFileName(file.Name)
 		if err != nil {
-			fmt.Println(err)
+			logs.Warning(err)
 			continue
 		}
 
@@ -1306,9 +1307,9 @@ func (s *TWebAzul) ParseURL() ([]TOpenJDK, error) {
 
 	// 遍历每个目标平台
 	for _, target := range targets {
-		fmt.Println("==================================================")
-		fmt.Printf("-= 获取 %s/%s 的 JDK 列表 =-\n", target.goos, target.goarch)
-		fmt.Println("==================================================")
+		logs.Debug("==================================================")
+		logs.Debug("-= 获取 %s/%s 的 JDK 列表 =-", target.goos, target.goarch)
+		logs.Debug("==================================================")
 
 		// 构建 API URL
 		apiURL := fmt.Sprintf("%s?os=%s&arch=%s&archive_type=zip&java_package_type=jdk&javafx_bundled=false&latest=true&release_status=ga&availability_types=CA&certifications=tck&page=1&page_size=100",
@@ -1317,14 +1318,14 @@ func (s *TWebAzul) ParseURL() ([]TOpenJDK, error) {
 		// 获取 JDK 列表
 		downloads, err := s.FetchJDKList(apiURL, target.goos, target.goarch)
 		if err != nil {
-			fmt.Printf("  获取失败: %v\n", err)
+			logs.Warning(err.Error())
 			continue
 		}
 
 		// 打印找到的 JDK 信息
 		if len(downloads) > 0 {
 			for _, jdk := range downloads {
-				fmt.Printf("%s\n", jdk.String())
+				logs.Debug("%s", jdk.String())
 			}
 		}
 		allDownloads = append(allDownloads, downloads...)
@@ -1474,7 +1475,7 @@ func (s *TWebAdoptium) ParseURL() ([]TOpenJDK, error) {
 		return nil, fmt.Errorf("获取可用版本失败: %v", err)
 	}
 
-	fmt.Printf("找到 %d 个可用版本\n\n", len(releases))
+	logs.Debug("找到 %d 个可用版本", len(releases))
 
 	// 支持的操作系统和架构组合
 	targets := []struct {
@@ -1493,9 +1494,9 @@ func (s *TWebAdoptium) ParseURL() ([]TOpenJDK, error) {
 
 	// 2. 遍历每个版本
 	for _, version := range releases {
-		fmt.Println("==================================================")
-		fmt.Printf("-= 处理 JDK %d 版本 =-\n", version)
-		fmt.Println("==================================================")
+		logs.Debug("==================================================")
+		logs.Debug("-= 处理 JDK %d 版本 =-", version)
+		logs.Debug("==================================================")
 
 		// 遍历每个目标平台
 		for _, target := range targets {
@@ -1507,7 +1508,7 @@ func (s *TWebAdoptium) ParseURL() ([]TOpenJDK, error) {
 
 			// 打印找到的 JDK 信息
 			for _, jdk := range downloads {
-				fmt.Printf("%s\n", jdk.String())
+				logs.Debug("%s", jdk.String())
 			}
 			allDownloads = append(allDownloads, downloads...)
 		}
