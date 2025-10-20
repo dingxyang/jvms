@@ -30,9 +30,9 @@ jobs:
             VERSION="3.0.7"
           fi
 
-          # VERSION 如果v开头去掉 v
+          # VERSION 如果v开头去掉v
           VERSION=$(echo $VERSION | sed 's/^v//')
-          
+
           # 获取构建时间
           BUILD_TIME=$(date '+%Y-%m-%d(%H:%M:%S)')
           
@@ -129,61 +129,8 @@ jobs:
           ls -la ${APP_NAME}${VERSION}_*
 
       - name: Upload release binaries
-        uses: actions/upload-release-asset@v1
+        uses: alexellis/upload-assets@0.4.1
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./jvms${VERSION}_windows-amd64.zip
-          asset_name: jvms${VERSION}_windows-amd64.zip
-          asset_content_type: application/zip
-
-      - name: Upload Windows 386
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./jvms${VERSION}_windows-386.zip
-          asset_name: jvms${VERSION}_windows-386.zip
-          asset_content_type: application/zip
-
-      - name: Upload Linux amd64
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./jvms${VERSION}_linux-amd64.tar.gz
-          asset_name: jvms${VERSION}_linux-amd64.tar.gz
-          asset_content_type: application/gzip
-
-      - name: Upload Linux arm64
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./jvms${VERSION}_linux-arm64.tar.gz
-          asset_name: jvms${VERSION}_linux-arm64.tar.gz
-          asset_content_type: application/gzip
-
-      - name: Upload macOS amd64
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./jvms${VERSION}_darwin-amd64.tar.gz
-          asset_name: jvms${VERSION}_darwin-amd64.tar.gz
-          asset_content_type: application/gzip
-
-      - name: Upload macOS arm64
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./jvms${VERSION}_darwin-arm64.tar.gz
-          asset_name: jvms${VERSION}_darwin-arm64.tar.gz
-          asset_content_type: application/gzip
+          asset_paths: '["./jvms*.zip", "./jvms*.tar.gz"]'
