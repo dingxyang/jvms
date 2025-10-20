@@ -11,31 +11,35 @@ import (
 	"golang.org/x/net/html"
 )
 
-// THuaweiJDK 表示华为镜像源中的 JDK 文件信息
-type THuaweiJDK struct {
+// TOpenJDK 表示华为镜像源中的 JDK 文件信息
+type TOpenJDK struct {
 	Version      string // 版本号
 	Filename     string // 文件名
+	GOOS         string // 操作系统类型
+	GOARCH       string // 系统架构
 	URL          string // 下载链接
 	Size         string // 文件大小
 	LastModified string // 最后修改时间
-	GOOS         string // 操作系统类型
-	GOARCH       string // 系统架构
 }
 
 // HuaweiJDKs 从华为镜像源获取所有 JDK 版本
 // 返回值:
-//   []THuaweiJDK - JDK 版本信息列表
-func HuaweiJDKs() []THuaweiJDK {
+//
+//	[]TOpenJDK - JDK 版本信息列表
+func HuaweiJDKs() []TOpenJDK {
 	return HuaweiJDKsFromURL("https://mirrors.huaweicloud.com/openjdk/")
 }
 
 // HuaweiJDKsFromURL 从指定 URL 获取 JDK 版本列表
 // 参数:
-//   baseURL - 镜像源的基础 URL
+//
+//	baseURL - 镜像源的基础 URL
+//
 // 返回值:
-//   []THuaweiJDK - JDK 版本信息列表
-func HuaweiJDKsFromURL(baseURL string) []THuaweiJDK {
-	var allJDKs []THuaweiJDK
+//
+//	[]TOpenJDK - JDK 版本信息列表
+func HuaweiJDKsFromURL(baseURL string) []TOpenJDK {
+	var allJDKs []TOpenJDK
 
 	// 获取版本列表
 	versions := fetchVersionList(baseURL)
@@ -60,9 +64,12 @@ func HuaweiJDKsFromURL(baseURL string) []THuaweiJDK {
 
 // fetchVersionList 获取 JDK 版本目录列表
 // 参数:
-//   baseURL - 镜像源的基础 URL
+//
+//	baseURL - 镜像源的基础 URL
+//
 // 返回值:
-//   []string - 版本目录名称列表
+//
+//	[]string - 版本目录名称列表
 func fetchVersionList(baseURL string) []string {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", baseURL, nil)
@@ -96,9 +103,12 @@ func fetchVersionList(baseURL string) []string {
 
 // extractVersions 从 HTML 中提取版本目录
 // 参数:
-//   n - HTML 节点
+//
+//	n - HTML 节点
+//
 // 返回值:
-//   []string - 版本目录名称列表
+//
+//	[]string - 版本目录名称列表
 func extractVersions(n *html.Node) []string {
 	var versions []string
 	versionPattern := regexp.MustCompile(`^(\d+(\.\d+)*)/$`)
@@ -130,11 +140,14 @@ func extractVersions(n *html.Node) []string {
 
 // fetchVersionFiles 获取特定版本的文件列表
 // 参数:
-//   versionURL - 版本目录的 URL
-//   version - 版本号
+//
+//	versionURL - 版本目录的 URL
+//	version - 版本号
+//
 // 返回值:
-//   []THuaweiJDK - 该版本的 JDK 文件信息列表
-func fetchVersionFiles(versionURL string, version string) []THuaweiJDK {
+//
+//	[]TOpenJDK - 该版本的 JDK 文件信息列表
+func fetchVersionFiles(versionURL string, version string) []TOpenJDK {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", versionURL, nil)
 	if err != nil {
@@ -163,13 +176,16 @@ func fetchVersionFiles(versionURL string, version string) []THuaweiJDK {
 
 // extractFiles 从版本目录的 HTML 中提取可下载的文件
 // 参数:
-//   n - HTML 节点
-//   baseURL - 基础 URL
-//   version - 版本号
+//
+//	n - HTML 节点
+//	baseURL - 基础 URL
+//	version - 版本号
+//
 // 返回值:
-//   []THuaweiJDK - JDK 文件信息列表
-func extractFiles(n *html.Node, baseURL string, version string) []THuaweiJDK {
-	var files []THuaweiJDK
+//
+//	[]TOpenJDK - JDK 文件信息列表
+func extractFiles(n *html.Node, baseURL string, version string) []TOpenJDK {
+	var files []TOpenJDK
 	filePattern := regexp.MustCompile(`\.(tar\.gz|zip|msi|pkg|bin)$`)
 
 	var traverse func(*html.Node)
@@ -188,7 +204,7 @@ func extractFiles(n *html.Node, baseURL string, version string) []THuaweiJDK {
 				size := extractSize(n)
 				goos, goarch := parseOSAndArch(href)
 
-				files = append(files, THuaweiJDK{
+				files = append(files, TOpenJDK{
 					Version:      strings.TrimSuffix(version, "/"),
 					Filename:     href,
 					URL:          baseURL + href,
@@ -211,9 +227,12 @@ func extractFiles(n *html.Node, baseURL string, version string) []THuaweiJDK {
 
 // extractLastModified 从 HTML 节点上下文中提取最后修改日期
 // 参数:
-//   n - HTML 节点
+//
+//	n - HTML 节点
+//
 // 返回值:
-//   string - 最后修改日期字符串，未找到则返回空字符串
+//
+//	string - 最后修改日期字符串，未找到则返回空字符串
 func extractLastModified(n *html.Node) string {
 	if n.Parent != nil && n.Parent.Type == html.ElementNode && n.Parent.Data == "pre" {
 		var found bool
@@ -240,9 +259,12 @@ func extractLastModified(n *html.Node) string {
 
 // extractSize 从 HTML 节点上下文中提取文件大小
 // 参数:
-//   n - HTML 节点
+//
+//	n - HTML 节点
+//
 // 返回值:
-//   string - 文件大小字符串，未找到则返回空字符串
+//
+//	string - 文件大小字符串，未找到则返回空字符串
 func extractSize(n *html.Node) string {
 	if n.Parent != nil && n.Parent.Type == html.ElementNode && n.Parent.Data == "pre" {
 		var found bool
@@ -269,10 +291,13 @@ func extractSize(n *html.Node) string {
 
 // parseOSAndArch 从 JDK 文件名中提取操作系统和架构信息
 // 参数:
-//   filename - JDK 文件名
+//
+//	filename - JDK 文件名
+//
 // 返回值:
-//   goos - 操作系统类型（GOOS 格式）
-//   goarch - 系统架构（GOARCH 格式）
+//
+//	goos - 操作系统类型（GOOS 格式）
+//	goarch - 系统架构（GOARCH 格式）
 func parseOSAndArch(filename string) (goos, goarch string) {
 	filename = strings.ToLower(filename)
 

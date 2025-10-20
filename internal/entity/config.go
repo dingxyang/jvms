@@ -6,6 +6,8 @@ type TConfig struct {
 	JavaHome string `json:"java_home"`
 	// CurrentJDKVersion 当前使用的JDK版本
 	CurrentJDKVersion string `json:"current_jdk_version"`
+	// JDK下载来源
+	WebType string `json:"web_type"`
 	// Proxy 代理服务器地址
 	Proxy string `json:"proxy"`
 	// Store JDK存储路径
