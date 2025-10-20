@@ -133,4 +133,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
-          asset_paths: '["./jvms_*.zip", "./jvms_*.tar.gz"]'
+          asset_paths: '["./${APP_NAME}${VERSION}_*.zip", "./${APP_NAME}${VERSION}_*.tar.gz"]'
